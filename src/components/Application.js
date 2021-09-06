@@ -3,146 +3,134 @@ import DayList from "./DayList";
 import Appointment from "components/Appointment"
 import axios from "axios";
 import "components/Application.scss";
-import getAppointmentsForDay from "helpers/selectors";
+import { getInterview, getAppointmentsForDay, getInterviewersForDay } from "helpers/selectors";
+// import { NULL } from "node-sass";
+// import useVisualMode from "hooks/useVisualMode";
 
 
-// const days = [
-  //   {
-    //     id: 1,
-    //     name: "Monday",
-    //     spots: 2,
-    //   },
-    //   {
-      //     id: 2,
-      //     name: "Tuesday",
-      //     spots: 5,
-      //   },
-      //   {
-        //     id: 3,
-        //     name: "Wednesday",
-        //     spots: 0,
-        //   },
-        // ];
-        // const appointments = [
-        //   {
-        //     id: 1,
-        //     time: "12pm",
-        //   },
-        //   {
-        //     id: 2,
-        //     time: "1pm",
-        //     interview: {
-        //       student: "Lydia Miller-Jones",
-        //       interviewer: {
-        //         id: 1,
-        //         name: "Sylvia Palmer",
-        //         avatar: "https://i.imgur.com/LpaY82x.png",
-        //       }
-        //     }
-        //   },
-        //   {
-        //     id: 3,
-        //     time: "2pm",
-        //     interview: {
-        //       student: "Justin Miller",
-        //       interviewer: {
-        //         id: 3,
-        //         name: "Mildred Nazir",
-        //         avatar: "https://i.imgur.com/T2WwVfS.png",
-        //       }
-        //     }
-        //   },
-        //   {
-        //     id: 4,
-        //     time: "3pm",
-        //     interview: {
-        //       student: "Adam G",
-        //       interviewer: {
-        //         id: 2,
-        //         name: "Tori Malcolm",
-        //         avatar: "https://i.imgur.com/Nmx0Qxo.png",
-        //       }
-        //     }
-        //   },
-        //   {
-        //     id: 5,
-        //     time: "4pm",
-        //     interview: {
-        //       student: "Jocky rhodes",
-        //       interviewer: {
-        //         id: 5,
-        //         name: "Sven Jones",
-        //         avatar: "https://i.imgur.com/twYrpay.jpg",
-        //       }
-        //     }
-        //   }
-        // ];
-        
-        
-        export default function Application(props) {
-          
-          const [state, setState] = useState({
-            day: "Monday",
-            days: [],
-            appointments: {}
-          });
-          const dailyAppointments = getAppointmentsForDay({days: state.days, appointments: state.appointments},
-                                                        state.day);
+export default function Application(props) {
 
-          // setState({ ...state, day: "Tuesday" });
-          
-          const setDay = day => setState({ ...state, day });
+  const SHOW = "SHOW";
+  // const { mode, transition, back } = useVisualMode(SHOW);
+
+      
+  const [state, setState] = useState({
+    day: "Monday",
+    days: [],
+    appointments: {},
+    interviewers:{}
+  });
+  const dailyAppointments = getAppointmentsForDay({days: state.days, appointments: state.appointments},
+                                                state.day); // gets us appointments array for the 'day'
+
+  const interviewers = getInterviewersForDay({days: state.days, appointments: state.appointments, 
+    interviewers: state.interviewers}, state.day);    // gets us interviewers array for the 'day'
   
-          // const setDays = (days) => setState(prev => ({ ...prev, days }));
+  const setDay = day => setState({ ...state, day });
 
-          useEffect(() => {
-          //  axios.get("/api/days")
-          //  .then(response => {
-          //    console.log("=========> ", response)
-            //  setDays(response.data);
+  function bookInterview(id, interview) {
 
-            Promise.all([
-              axios.get("http://localhost:8001/api/days"),
-              axios.get("http://localhost:8001/api/appointments"),
-            ]).then((all) => {
-              console.log(">>>>>>>>>>>>", all)
-              setState(prev => ({...prev, days: all[0].data, appointments: all[1].data }));
-              // set your states here with the correct values...
-            })
+    console.log("id--->", id);
+    console.log("interview--->", interview);
+    const appointment = {
+      ...state.appointments[id],
+      interview: { ...interview }
+    };
+    
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment
+    };
+    
+    return axios.put(`/api/appointments/${id}`, {interview} )
+    .then((response) => {
+      setState({...state, appointments} )
+      console.log("success");
+    }) 
+     .catch(error => {
+       console.log("some error ------->", error);
+    })
+  }
 
+
+  function cancelInterview(id) {
+    const appointment = { ...state.appointments[id], interview: null}
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment
+    };
+    console.log("in API---------------");
+    return axios.delete(`/api/appointments/${id}`, {interview: null} )
+    .then((response) => {
+      setState({...state, appointments} )
+      console.log("success deleting");
+    }) 
+     .catch(error => {
+       console.log("some error ------->", error);
+    })
+  }
+
+
+  
+
+      // const setDays = (days) => setState(prev => ({ ...prev, days }));
+
+    useEffect(() => {
+
+      Promise.all([
+        axios.get("http://localhost:8001/api/days"),
+        axios.get("http://localhost:8001/api/appointments"),
+        axios.get("http://localhost:8001/api/interviewers")
+      ]).then((all) => {
+        console.log(">>>>>>>>>>>>", all)
+        setState(prev => ({...prev, days: all[0].data, appointments: all[1].data, interviewers: all[2].data }));
+
+      })
+
+
+    },[])
+      
+      const appShow = dailyAppointments.map(appointment => {
+
+        const interview = getInterview(state, appointment.interview);
+
+       return ( <Appointment key={appointment.id} 
+            id={appointment.id}
+            time={appointment.time}
+            interview={interview}
+            interviewers = {interviewers}
+            bookInterview = {bookInterview}
+            cancelInterview = {cancelInterview}
+        />)
+       }
+        )
+        appShow.push(<Appointment key="last" time="5pm" />)
         
-          },[])
-          
-          const appShow = dailyAppointments.map(appointment => 
-            <Appointment key={appointment.id} {...appointment} />
-            )
-            appShow.push(<Appointment key="last" time="5pm" />)
-            
-            
-            return (
-              <main className="layout">
-              <section className="sidebar">
-                <img
-                className="sidebar--centered"
-                src="images/logo.png"
-                alt="Interview Scheduler"
+        
+        return (
+          <main className="layout">
+          <section className="sidebar">
+            <img
+            className="sidebar--centered"
+            src="images/logo.png"
+            alt="Interview Scheduler"
+            />
+          <hr className="sidebar__separator sidebar--centered" />
+          <nav className="sidebar__menu">
+              <DayList
+                days={state.days}
+                day = {state.day}
+                setDay={setDay}
                 />
-              <hr className="sidebar__separator sidebar--centered" />
-              <nav className="sidebar__menu">
-                  <DayList
-                    days={state.days}
-                    day = {state.day}
-                    setDay={setDay}
-                    />
-              </nav>
-              <img
-                className="sidebar__lhl sidebar--centered"
-                src="images/lhl.png"
-                alt="Lighthouse Labs"
+          </nav>
+          <img
+            className="sidebar__lhl sidebar--centered"
+            src="images/lhl.png"
+            alt="Lighthouse Labs"
           />
           </section>
-      <section className="schedule">
-        {appShow}
+       <section className="schedule">
+        {appShow}         {/*enlists all appointment for the day here*/}
       </section>
     </main>
   );

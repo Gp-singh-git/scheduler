@@ -47,9 +47,7 @@ export default function Application(props) {
       setState({...state, appointments} )
       console.log("success");
     }) 
-     .catch(error => {
-       console.log("some error ------->", error);
-    })
+     
   }
 
 
@@ -65,9 +63,7 @@ export default function Application(props) {
       setState({...state, appointments} )
       console.log("success deleting");
     }) 
-     .catch(error => {
-       console.log("some error ------->", error);
-    })
+     
   }
 
 

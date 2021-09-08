@@ -64,7 +64,7 @@ export default function Appointment(props) {
   function edit1() {
     transition(EDIT);
   }
-  console.log('student dsata  ->>>>>>>>', props.interview);
+  // console.log('student dsata  ->>>>>>>>', props.interview);
   return (
     <article className="appointment">
       <Header time={props.time}></Header>

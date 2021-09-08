@@ -18,8 +18,7 @@ export default function DayListItem(props) {
     }
       return spotText;
 
-  }
-   
+  }   
 
   const buttonClass1 = classnames("day-list__item", {
     "day-list__item--selected": props.selected, 

@@ -22,9 +22,9 @@ export default function useApplicationData() {
       [id]: appointment,
     };
     console.log("appointments ----->", appointments);
-    return axios
-      .put(`/api/appointments/${id}`, { interview })
-      .then((response) => {
+        return axios
+          .put(`/api/appointments/${id}`, { interview })
+          .then((response) => {
         if(edit_mode === 0) {
         const days = updateSpots(-1);
         setState({ ...state, appointments, days });

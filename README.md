@@ -47,10 +47,10 @@ npm start
 
 ## Screenshots
 
-![]()
+![](https://github.com/Gp-singh-git/scheduler/blob/master/docs/Home.png?raw=true)
 
-![]()
+![](https://github.com/Gp-singh-git/scheduler/blob/master/docs/Form.png?raw=true)
 
-![]()
+![](https://github.com/Gp-singh-git/scheduler/blob/master/docs/Delete.png?raw=true)
 
-![]()
+![](https://github.com/Gp-singh-git/scheduler/blob/master/docs/Days.png?raw=true)

@@ -8,28 +8,29 @@ export default function useApplicationData() {
     appointments: {},
     interviewers: {},
   });
-
+  //Function to set day, like Monday, Tuesday, etc
   const setDay = (day) => setState({ ...state, day });
 
+  //Function used in Save/Edit to save values to database.
   function bookInterview(id, interview, edit_mode) {
     const appointment = {
       ...state.appointments[id],
-      interview: { ...interview },
+      interview: { ...interview }, //Filling interview details from arg which was null before
     };
 
     const appointments = {
       ...state.appointments,
-      [id]: appointment,
+      [id]: appointment, //Updating all appointments
     };
-    console.log("appointments ----->", appointments);
-        return axios
-          .put(`/api/appointments/${id}`, { interview })
-          .then((response) => {
-        if(edit_mode === 0) {
-        const days = updateSpots(-1);
-        setState({ ...state, appointments, days });
+
+    return axios
+      .put(`/api/appointments/${id}`, { interview })
+      .then((response) => {
+        if (edit_mode === 0) {
+          const days = updateSpots(-1);
+          setState({ ...state, appointments, days }); //Updating with new Appointments data and days with updated spots
         } else {
-          setState({ ...state, appointments});
+          setState({ ...state, appointments });
         }
         console.log('success');
       });
@@ -46,42 +47,18 @@ export default function useApplicationData() {
       .then((response) => {
         const days = updateSpots(1);
         setState({ ...state, appointments, days });
-        console.log('success');
-
-
-        // const rev_days = calcSpots();
-        // setState({ ...state, appointments, days: rev_days });
-        console.log('success deleting');
       });
   }
 
-  // function calcSpots() {
-  //   console.log('STATE------------', state);
-  //   const newDays = state.days;
-  //   console.log('------->--newdays-->', newDays);
-  //   const modifiedDays = newDays.map((day) => {
-  //     const count = day.appointments.filter(
-  //       (ap_id) => state.appointments[ap_id].interview === null
-  //     );
-  //     console.log('Count-------?????', count);
-  //     day.spots = count.length;
-  //   });
-
-  //   return modifiedDays;
-  // }
-
   function updateSpots(delta) {
-    //Step1 using state.day , select the right day from state.days 
-    const sel_index = state.days.findIndex( day1 => day1.name === state.day)
-    console.log("sel_day ---------->", sel_index);
-
+    //Step1 using state.day , select the right day from state.days
+    const sel_index = state.days.findIndex((day1) => day1.name === state.day);
     //Step 2 using delta, inc/dec spots count for the day
-
-    const days = [...state.days]
+    const days = [...state.days];
     days[sel_index].spots += delta;
 
     //Step 3 days state update
-    // setState({...state, days})
+    setState({ ...state, days });
     return days;
   }
 

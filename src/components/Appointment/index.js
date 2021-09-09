@@ -11,6 +11,7 @@ import './styles.scss';
 import useVisualMode from 'hooks/useVisualMode';
 
 export default function Appointment(props) {
+  //Mode variables to be used
   const EMPTY = 'EMPTY';
   const SHOW = 'SHOW';
   const CREATE = 'CREATE';
@@ -20,16 +21,18 @@ export default function Appointment(props) {
   const EDIT = 'EDIT';
   const ERROR_SAVE = 'ERROR_SAVE';
   const ERROR_DELETE = 'ERROR_DELETE';
+
   const { mode, transition, back } = useVisualMode(
     props.interview ? SHOW : EMPTY
   );
   const { interviewers } = props;
   const { bookInterview, cancelInterview } = props;
 
+  //Function to save new appointment booking information
   function save(name, interviewer) {
     let edit_mode = 0;
-    if(mode === EDIT) {
-      edit_mode =1;
+    if (mode === EDIT) {
+      edit_mode = 1;
     }
     transition(SAVING);
     const interview = {
@@ -44,13 +47,12 @@ export default function Appointment(props) {
         transition(ERROR_SAVE, true);
       });
   }
-
+  //Function confirming delete operation by showing confirm screen
   function askDelete() {
     transition(CONFIRM);
   }
-
+  //Function deleting appointment data
   function delete1() {
-    console.log(' in delete 1 function');
     transition(DELETING, true);
     cancelInterview(props.id)
       .then((response) => {
@@ -64,7 +66,7 @@ export default function Appointment(props) {
   function edit1() {
     transition(EDIT);
   }
-  // console.log('student dsata  ->>>>>>>>', props.interview);
+
   return (
     <article className="appointment">
       <Header time={props.time}></Header>
@@ -93,8 +95,6 @@ export default function Appointment(props) {
           onCancel={() => back()}
           interviewers={interviewers}
           onSave={save}
-          // name = {props.interview.student && props.interview.student}
-          // interviewer = {props.interview.interviewer.id && props.interview.interviewer.id}
         />
       )}
 
@@ -102,7 +102,7 @@ export default function Appointment(props) {
         <Form
           onCancel={() => back()}
           interviewers={interviewers}
-          onSave={save}  
+          onSave={save}
           name={props.interview.student && props.interview.student}
           interviewer={
             props.interview.interviewer.id && props.interview.interviewer.id
